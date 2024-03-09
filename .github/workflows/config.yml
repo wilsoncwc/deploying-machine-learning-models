@@ -30,6 +30,7 @@ jobs:
   section_07_deploy_app_to_railway:
     needs: section_07_test_app
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js 16.13
