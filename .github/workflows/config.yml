@@ -45,31 +45,21 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
-  section_07_test_and_upload_regression_model:
-    if: startsWith(github.ref, 'refs/tags/')
+  section_08_deploy_app_container_via_railway:
     runs-on: ubuntu-latest
-    environment: package
+    environment: production
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v2
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5.2.0
+      - name: Set up Node.js 16.13
+        uses: actions/setup-node@v2
         with:
-          python-version: 3.11
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: Fetch the data
-        run: tox -e fetch_data
-        working-directory: section-07-ci-and-publishing/model-package
+          node-version: 16.13
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+      - name: Deploy to Railway App
+        run: railway up --detach --service ${{ secrets.RAILWAY_SERVICE_ID }}
+        working-directory: section-08-deploying-with-containers
         env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-      - name: Test the model
-        run: tox
-        working-directory: section-07-ci-and-publishing/model-package
-      - name: Publish model to Gemfury
-        run: tox -e publish_model
-        working-directory: section-07-ci-and-publishing/model-package
-        env:
-          GEMFURY_PUSH_URL: ${{ secrets.GEMFURY_PUSH_URL }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
