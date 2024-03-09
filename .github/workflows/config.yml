@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - demo
+  pull_request:
+    branches:
+      - master
+      - demo
+
+jobs:
+  section_07_test_app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: Run tests
+        run: tox
+        working-directory: section-07-ci-and-publishing/house-prices-api
+
+  section_07_deploy_app_to_railway:
+    needs: section_07_test_app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js 16.13
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.13
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+      - name: Deploy to Railway App
+        run: railway up --detach
+        working-directory: cd section-07-ci-and-publishing/house-prices-api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  section_07_test_and_upload_regression_model:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: Fetch the data
+        run: tox -e fetch_data
+        working-directory: section-07-ci-and-publishing/model-package
+      - name: Test the model
+        run: tox
+        working-directory: section-07-ci-and-publishing/model-package
+      - name: Publish model to Gemfury
+        run: tox -e publish_model
+        working-directory: section-07-ci-and-publishing/model-package
