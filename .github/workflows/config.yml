@@ -62,9 +62,14 @@ jobs:
       - name: Fetch the data
         run: tox -e fetch_data
         working-directory: section-07-ci-and-publishing/model-package
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       - name: Test the model
         run: tox
         working-directory: section-07-ci-and-publishing/model-package
       - name: Publish model to Gemfury
         run: tox -e publish_model
         working-directory: section-07-ci-and-publishing/model-package
+        env:
+          GEMFURY_PUSH_URL: ${{ secrets.GEMFURY_PUSH_URL }}
