@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:        
+      - '*' 
+
+jobs:
+  section_07_test_and_upload_regression_model:
+    runs-on: ubuntu-latest
+    environment: package
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: Fetch the data
+        run: tox -e fetch_data
+        working-directory: section-07-ci-and-publishing/model-package
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      - name: Test the model
+        run: tox
+        working-directory: section-07-ci-and-publishing/model-package
+      - name: Publish model to Gemfury
+        run: tox -e publish_model
+        working-directory: section-07-ci-and-publishing/model-package
+        env:
+          GEMFURY_PUSH_URL: ${{ secrets.GEMFURY_PUSH_URL }}
