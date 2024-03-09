@@ -40,7 +40,7 @@ jobs:
         run: npm i -g @railway/cli
       - name: Deploy to Railway App
         run: railway up --detach
-        working-directory: cd section-07-ci-and-publishing/house-prices-api
+        working-directory: section-07-ci-and-publishing/house-prices-api
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
