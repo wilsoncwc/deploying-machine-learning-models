@@ -54,7 +54,9 @@ jobs:
         uses: docker/build-push-action@v5.2.0
         with:
           build-args: PIP_EXTRA_INDEX_URL=${{ secrets.PIP_EXTRA_INDEX_URL }}
+          context: ./section-08-deploying-with-containers
           target: house-prices-api:latest
+          push: false
       - name: Set up Node.js 16.13
         uses: actions/setup-node@v2
         with:
